@@ -1,0 +1,45 @@
+name: Build Shadow Reborn
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Extrair projeto
+        run: |
+          mkdir project
+          unzip ShadowReborn_Project_Fixed.zip -d project
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '6.5'
+
+      - name: Configurar Android
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar ferramentas
+        run: sdkmanager "platforms;android-30" "build-tools;30.0.3"
+
+      - name: Compilar APK
+        run: gradle -p project assembleDebug
+
+      - name: Salvar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shadow-Reborn-APK
+          path: project/app/build/outputs/apk/debug/*.apk
